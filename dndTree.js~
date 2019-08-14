@@ -363,7 +363,7 @@ treeJSON = d3.json("flare.json", function(error, treeData) {
         d = toggleChildren(d);
 
         //add tf
-        //if(d.tf){alert(d.tf);}
+        if(d.tf){alert(d.tf);}
 
         update(d);
         centerNode(d);
