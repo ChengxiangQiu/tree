@@ -46,6 +46,8 @@ treeJSON = d3.json("mouse.json", function(error, treeData) {
     // size of the diagram
     var viewerWidth = $(document).width();
     var viewerHeight = $(document).height();
+    //viewerWidth = 2000;
+    //viewerHeight = 500;
 
     var tree = d3.layout.tree()
         .size([viewerHeight, viewerWidth]);
@@ -357,15 +359,38 @@ treeJSON = d3.json("mouse.json", function(error, treeData) {
     // Toggle children on click.
 
     function click(d) {
-        if (d3.event.defaultPrevented) return; // click suppressed
-        d = toggleChildren(d);
 
-        //add tf
-        //if(d.tf){alert(d.tf);}
+        if (d3.event.defaultPrevented) return; // click suppressed
+        display(d);
+        //d = toggleChildren(d);
 
         update(d);
         centerNode(d);
     }
+
+    // display cell state detailed information
+    function display(d){
+    // time point
+        d3.select("#timepoint").text(d.name.split(':')[0]);
+        // annotation (cell type)
+        d3.select("#annotation").text(d.name.split(':')[1]);
+        // reference (which data set)
+        d3.select("#datset").text(d.datset);
+        // cell number
+        d3.select("#cellnum").text(d.cellnum);
+        // ancestor
+        d3.select("#ancestor").text(d.ancestor);
+        // derivator
+        d3.select("#derivator").text(d.derivator);
+        // marker
+        d3.select("#marker").text(d.marker);
+        // tf
+        d3.select("#tf").text(d.tf);
+        
+        d3.select("#display").style("visibility", "");
+        d3.select("#display_table th").style("background-color", color((d.children ? d : d.parent).data.name));
+    }
+
 
     function update(source) {
         // Compute the new height, function counts total children of root node and sets tree height accordingly.
@@ -545,7 +570,7 @@ treeJSON = d3.json("mouse.json", function(error, treeData) {
 
     // Define the root
     root = treeData;
-    root.x0 = viewerHeight / 2;
+    root.x0 = viewerHeight / 2 ;
     root.y0 = 0;
 
     // Layout the tree initially and center on the root node.
