@@ -39,7 +39,7 @@
   <body>
 
 <!-- load the d3.js library --> 
-<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="d3.v3.min.js"></script>
 <script src="d3.legend.js"></script>
 <h1 style="margin-left:50"><u>T</u>rajectories <u>O</u>f <u>M</u>ammalian <u>E</u>mbryogenesis (TOME)</h1>
  
@@ -136,7 +136,7 @@ treeJSON = d3.json("mouse.json", function(error, treeData) {
       console.log('open tab')
       window.open(
         //d.url,
-        href='http://127.0.0.1:8000/node.html?node_id=' + d.node_id,
+        href='https://chengxiangqiu.github.io/tree/node.html?node_id=' + d.node_id,
         target="_blank"
         )
     }
@@ -145,7 +145,7 @@ treeJSON = d3.json("mouse.json", function(error, treeData) {
       console.log('open tab')
       window.open(
         //d.url,
-        href='http://127.0.0.1:8000/edge.html?source_node_id=' + d.source.node_id + '&target_node_id=' + d.target.node_id,
+        href='https://chengxiangqiu.github.io/tree/edge.html?source_node_id=' + d.source.node_id + '&target_node_id=' + d.target.node_id,
         //alert(d.source.node_id + '->' + d.target.node_id),
         '_blank'
         )
