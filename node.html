@@ -10,9 +10,8 @@
         h1{
             color: #0099FF;
         }
-        p{
+        h2{
             color: #000000;
-            font-size: 20px;
         }
         tr{
             background-color: #e5e5e5;
@@ -29,8 +28,11 @@
 </head>
 <body>
 <h1>Cell state of TOME</h1>
-<p>This table shows the basic information of an individual cell state. </p>
+<h2>This table shows the basic information of an individual cell state. </h2>
 <div id="table"></div>
+
+<svg id="svgEmbed_1" style="height:500px; width:500px; float: left; margin: 50px;"></svg>
+<svg id="svgEmbed_2" style="height:500px; width:600px; float: left; margin: 50px;"></svg>
 
 </body>
 
@@ -38,6 +40,7 @@
 
 <!-- load the function file you need before you call it... -->
 <script type="text/javascript" src="tabulate.js"></script>
+<script type="text/javascript" src="vcplot.js"></script>
 
 <script type="text/javascript">
     function getQueryVariable(variable) {
@@ -99,6 +102,17 @@
                     return d;
                 });
     });
+
+    d3.select("#svgEmbed_1").append("image")
+        .attr("xlink:href",vcplot.get(node_id))
+        .attr("width", '500px')
+        .attr("height", '500px')
+
+    d3.select("#svgEmbed_2").append("image")
+        .attr("xlink:href",vcplot_day.get(node_id))
+        .attr("width", '550px')
+        .attr("height", '550px')
+
 </script>
 
 </html>
