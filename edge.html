@@ -76,7 +76,7 @@
     }
 
    // alert(getQueryVariable('edge_id'));
-   var edge_id = getQueryVariable('source_node_id') + '_' + getQueryVariable('target_node_id');
+   edge_id = getQueryVariable('source_node_id') + '_' + getQueryVariable('target_node_id');
 
     //Load in contents of CSV file, and do things to the data.
     d3.tsv("edge_information.tsv", function(error, myData) {
