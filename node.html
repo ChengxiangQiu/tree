@@ -57,8 +57,8 @@
 <svg id="svgEmbed_2" style="height:500px; width:600px;  margin-left: 20px;"></svg>
 </div>
 
-<h2 style="margin-top:50px;">Inferring continuous expression levels for individual TFs over the possible cellular trajectory. </h2>
-<p style="margin-left: 20px;">Select one TF:</p>
+<h2 style="margin-top:50px;">Inferring continuous expression levels for individual TFs (or cell-type-specific marker genes) over the possible cellular trajectory. </h2>
+<p style="margin-left: 20px;">Select one TF (gene):</p>
 <div id="my_selection" style="height:500px; width:50px;  margin-left: 20px; float: left;"></div>
 <div id="my_dataviz" style="height:500px; width:500px;  margin-left: 50px; float: left;"></div>
 
@@ -195,7 +195,7 @@
 
         function onchange() {
             $('#scatter_plot').remove();
-            gene_id = d3.select('select').property('value')
+            var gene_id = d3.select('select').property('value');
 
                 // append the svg object to the body of the page
             var svg = d3.select("#my_dataviz").append("svg")
