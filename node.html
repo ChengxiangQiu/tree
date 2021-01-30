@@ -26,6 +26,12 @@
         table{
             color: #000000;
         }
+
+        path { 
+            stroke: steelblue;
+            stroke-width: 2;
+            fill: none;
+        }
         .axis path,
         .axis line {
           fill: none;
@@ -43,6 +49,7 @@
           height: 28px;
           pointer-events: none;
         }
+
     </style>
 </head>
 <body>
@@ -50,17 +57,18 @@
 <h2>Some basic information of the selected cell state.</h2>
 <div id="table"></div>
 
-
+<div id="velocity_plot">
 <h2 style="margin-top:50px;">RNA velocity clarifies relationships between cell states. </h2>
-<div>
 <svg id="svgEmbed_1" style="height:500px; width:500px;  margin-left: 20px;"></svg>
 <svg id="svgEmbed_2" style="height:500px; width:600px;  margin-left: 20px;"></svg>
 </div>
 
+<div id="view_plot">
 <h2 style="margin-top:50px;">Inferring continuous expression levels for individual TFs (or cell-type-specific marker genes) over the possible cellular trajectory. </h2>
 <p style="margin-left: 20px;">Select one TF (gene):</p>
 <div id="my_selection" style="height:500px; width:50px;  margin-left: 20px; float: left;"></div>
 <div id="my_dataviz" style="height:500px; width:500px;  margin-left: 50px; float: left;"></div>
+</div>
 
 </body>
 
@@ -83,8 +91,8 @@
     console.log('Query variable %s not found', variable);
     }
 
-   // alert(getQueryVariable('node_id'));
-   node_id = getQueryVariable('node_id');
+    // alert(getQueryVariable('node_id'));
+    node_id = getQueryVariable('node_id');
 
     //Load in contents of CSV file, and do things to the data.
     d3.tsv("node_information.tsv", function(error, myData) {
@@ -131,15 +139,19 @@
                 });
     });
 
-    d3.select("#svgEmbed_1").append("image")
-        .attr("xlink:href",vcplot.get(node_id))
-        .attr("width", '500px')
-        .attr("height", '500px')
+    if(vcplot.has(node_id)){
+        d3.select("#svgEmbed_1").append("image")
+          .attr("xlink:href",vcplot.get(node_id))
+          .attr("width", '500px')
+          .attr("height", '500px')
 
-    d3.select("#svgEmbed_2").append("image")
-        .attr("xlink:href",vcplot_day.get(node_id))
-        .attr("width", '530px')
-        .attr("height", '530px')
+        d3.select("#svgEmbed_2").append("image")
+          .attr("xlink:href",vcplot_day.get(node_id))
+          .attr("width", '530px')
+          .attr("height", '530px')
+    } else {
+        $('#velocity_plot').remove();
+    }
 
 
     d3.tsv('best_path.tsv', function(error, path_data){
@@ -147,150 +159,165 @@
         var to_keep_str = path_data.filter(function(d) { 
               return d['node_id'] == node_id
         });
-        var to_keep = to_keep_str[0]['best_path'].split(",");
 
-        d3.tsv('exp_state.tsv', function(error, org_data) {
+        if(to_keep_str.length === 0){
+            $('#view_plot').remove();
+        } else {
+            var to_keep = to_keep_str[0]['best_path'].split(",");
 
-        // load data
-        var data = org_data.filter(function(d) { 
-            return to_keep.indexOf(d.state) >= 0
-        });
+            d3.tsv('exp_state.tsv', function(error, org_data) {
 
-        var margin = {top: 20, right: 200, bottom: 100, left: 100},
-            width = 800 - margin.left - margin.right,
-            height = 400 - margin.top - margin.bottom;
+            // load data
+            var data = org_data.filter(function(d) { 
+                return to_keep.indexOf(d.state) >= 0
+            });
 
-        var gene_list = d3.keys(data[0]);
-            gene_list.shift();
-            gene_list.shift();
-            gene_list.shift();
-            gene_list.shift();
+            var margin = {top: 20, right: 200, bottom: 100, left: 100},
+                width = 800 - margin.left - margin.right,
+                height = 400 - margin.top - margin.bottom;
 
-        var select = d3.select("#my_selection")
-            .append('select')
-            .attr('class','select')
-            .on('change',onchange)
+            var gene_list = d3.keys(data[0]);
+                gene_list.shift();
+                gene_list.shift();
+                gene_list.shift();
+                gene_list.shift();
 
-        var options = select
-            .selectAll('option')
-            .data(gene_list).enter()
-            .append('option')
-            .text(function (d) { return d; });
+            var select = d3.select("#my_selection")
+                .append('select')
+                .attr('class','select')
+                .on('change',onchange)
 
-        function onchange() {
-            $('#scatter_plot').remove();
-            var gene_id = d3.select('select').property('value');
+            var options = select
+                .selectAll('option')
+                .data(gene_list).enter()
+                .append('option')
+                .text(function (d) { return d; });
 
-            // setup x 
-            var xValue = function(d) { return d.pseudotime;}, // data -> value
-                xScale = d3.scale.linear().range([0, width]), // value -> display
-                xMap = function(d) { return xScale(xValue(d));}, // data -> display
-                xAxis = d3.svg.axis().scale(xScale).orient("bottom");
+            function onchange() {
+                $('#scatter_plot').remove();
+                var gene_id = d3.select('select').property('value');
 
-            // setup y
-            var yValue = function(d) { return d[gene_id];}, // data -> value
-                yScale = d3.scale.linear().range([height, 0]), // value -> display
-                yMap = function(d) { return yScale(yValue(d));}, // data -> display
-                yAxis = d3.svg.axis().scale(yScale).orient("left");
+                // setup x 
+                var xValue = function(d) { return d.pseudotime;}, // data -> value
+                    xScale = d3.scale.linear().range([0, width]), // value -> display
+                    xMap = function(d) { return xScale(xValue(d));}, // data -> display
+                    xAxis = d3.svg.axis().scale(xScale).orient("bottom");
 
-        // setup fill color
-            var cValue = function(d) { return d.celltype;},
-                color = d3.scale.category10();
+                // setup y
+                var yValue = function(d) { return d[gene_id];}, // data -> value
+                    yScale = d3.scale.linear().range([height, 0]), // value -> display
+                    yMap = function(d) { return yScale(yValue(d));}, // data -> display
+                    yAxis = d3.svg.axis().scale(yScale).orient("left");
 
-                // append the svg object to the body of the page
-            var svg = d3.select("#my_dataviz").append("svg")
-                .attr("id", 'scatter_plot')
-                .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom)
-                .append("g")
-                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+            // setup fill color
+                var cValue = function(d) { return d.celltype;},
+                    color = d3.scale.category10();
 
-            // add the tooltip area to the webpage
-            var tooltip = d3.select("#my_dataviz").append("div")
-                .attr("class", "tooltip")
-                .style("opacity", 0);
+                    // append the svg object to the body of the page
+                var svg = d3.select("#my_dataviz").append("svg")
+                    .attr("id", 'scatter_plot')
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom)
+                    .append("g")
+                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-              // change string (from CSV) into number format
-              data.forEach(function(d) {
-                d.pseudotime = +d.pseudotime;
-                d[gene_id] = +d[gene_id];
-              });
+                // add the tooltip area to the webpage
+                var tooltip = d3.select("#my_dataviz").append("div")
+                    .attr("class", "tooltip")
+                    .style("opacity", 0);
 
-              // don't want dots overlapping axis, so add in buffer to data domain
-              xScale.domain([d3.min(data, xValue)-1, d3.max(data, xValue)+1]);
-              yScale.domain([d3.min(data, yValue)-1, d3.max(data, yValue)+1]);
-
-              // x-axis
-              svg.append("g")
-                  .attr("class", "x axis")
-                  .attr("transform", "translate(0," + height + ")")
-                  .call(xAxis)
-                .append("text")
-                  .attr("class", "label")
-                  .attr("x", width)
-                  .attr("y", 40)
-                  .style("text-anchor", "end")
-                  .text("Pseudotime");
-
-              // y-axis
-              svg.append("g")
-                  .attr("class", "y axis")
-                  .call(yAxis)
-                .append("text")
-                  .attr("class", "label")
-                  .attr("transform", "rotate(-90)")
-                  .attr("y", -55)
-                  .attr("dy", ".71em")
-                  .style("text-anchor", "end")
-                  .text("Log(normalized expression of " + gene_id +")");
-
-              // draw dots
-              svg.selectAll(".dot")
-                  .data(data)
-                .enter().append("circle")
-                  .attr("class", "dot")
-                  .attr("r", 3.5)
-                  .attr("cx", xMap)
-                  .attr("cy", yMap)
-                  .style("fill", function(d) { return color(cValue(d));}) 
-                  .on("mouseover", function(d) {
-                      tooltip.transition()
-                           .duration(200)
-                           .style("opacity", .9);
-                      tooltip.html(d["state"])
-                           .style("left", (d3.event.pageX + 5) + "px")
-                           .style("top", (d3.event.pageY - 20) + "px");
-                  })
-                  .on("mouseout", function(d) {
-                      tooltip.transition()
-                           .duration(500)
-                           .style("opacity", 0);
+                  // change string (from CSV) into number format
+                  data.forEach(function(d) {
+                    d.pseudotime = +d.pseudotime;
+                    d[gene_id] = +d[gene_id];
                   });
 
-              // draw legend
-              var legend = svg.selectAll(".legend")
-                  .data(color.domain())
-                  .enter().append("g")
-                  .attr("class", "legend")
-                  .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+                  // don't want dots overlapping axis, so add in buffer to data domain
+                  xScale.domain([d3.min(data, xValue)-1, d3.max(data, xValue)+1]);
+                  yScale.domain([d3.min(data, yValue)-1, d3.max(data, yValue)+1]);
 
-              // draw legend colored rectangles
-              legend.append("rect")
-                  .attr("x", width + 20)
-                  .attr("width", 18)
-                  .attr("height", 18)
-                  .style("fill", color);
+                  // x-axis
+                  svg.append("g")
+                      .attr("class", "x axis")
+                      .attr("transform", "translate(0," + height + ")")
+                      .call(xAxis)
+                    .append("text")
+                      .attr("class", "label")
+                      .attr("x", width)
+                      .attr("y", 40)
+                      .style("text-anchor", "end")
+                      .text("Pseudotime");
 
-              // draw legend text
-              legend.append("text")
-                  .attr("x", width + 40)
-                  .attr("y", 9)
-                  .attr("dy", ".35em")
-                  .style("text-anchor", "start")
-                  .text(function(d) { return d;})
-          };
+                  // y-axis
+                  svg.append("g")
+                      .attr("class", "y axis")
+                      .call(yAxis)
+                    .append("text")
+                      .attr("class", "label")
+                      .attr("transform", "rotate(-90)")
+                      .attr("y", -55)
+                      .attr("dy", ".71em")
+                      .style("text-anchor", "end")
+                      .text("Log(normalized expression of " + gene_id +")");
 
-        });
+                  // draw dots
+                  svg.selectAll(".dot")
+                      .data(data)
+                    .enter().append("circle")
+                      .attr("class", "dot")
+                      .attr("r", 3.5)
+                      .attr("cx", xMap)
+                      .attr("cy", yMap)
+                      .style("fill", function(d) { return color(cValue(d));}) 
+                      .on("mouseover", function(d) {
+                          tooltip.transition()
+                               .duration(200)
+                               .style("opacity", .9);
+                          tooltip.html(d["state"])
+                               .style("left", (d3.event.pageX + 5) + "px")
+                               .style("top", (d3.event.pageY - 20) + "px");
+                      })
+                      .on("mouseout", function(d) {
+                          tooltip.transition()
+                               .duration(500)
+                               .style("opacity", 0);
+                      });
+/*
+                  var valueline = d3.svg.line()
+                      .interpolate("basis") 
+                      .x(function(d) { return xScale(d.pseudotime); })
+                      .y(function(d) { return yScale(d[gene_id]); });
+
+                  svg.append("path")
+                      .attr("class", "line")
+                      .attr("d", valueline(data));
+*/
+                  // draw legend
+                  var legend = svg.selectAll(".legend")
+                      .data(color.domain())
+                      .enter().append("g")
+                      .attr("class", "legend")
+                      .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+
+                  // draw legend colored rectangles
+                  legend.append("rect")
+                      .attr("x", width + 20)
+                      .attr("width", 18)
+                      .attr("height", 18)
+                      .style("fill", color);
+
+                  // draw legend text
+                  legend.append("text")
+                      .attr("x", width + 40)
+                      .attr("y", 9)
+                      .attr("dy", ".35em")
+                      .style("text-anchor", "start")
+                      .text(function(d) { return d;})
+              };
+
+            });
+        }
+
 
     });
 

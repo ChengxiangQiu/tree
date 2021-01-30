@@ -53,10 +53,10 @@
 <div id = "view_plot">
 <h2 style="margin-top:50px;">Viewing the expression levels for individual TFs (or cell-type-specific marker genes) of each branchpoint. </h2>
 <p style="margin-left: 20px;">Select one TF (gene):</p>
-</div>
 <div id="my_selection" style="height:600px; width:50px;  margin-left: 20px; float: left;"></div>
 <div id="my_dataviz_1" style="height:600px; width:800px;  margin-left: 40px; float: left;"></div>
 <div id="my_dataviz_2" style="height:600px; width:800px;  margin-left: 10px; float: left;"></div>
+</div>
 </body>
 
 <script type="text/javascript" src="d3.v3.min.js"></script>
@@ -125,7 +125,11 @@
                 });
     });
 
-    d3.tsv('/exp/' + getQueryVariable('source_node_id') + '.tsv', function(error, data) {
+    d3.tsv('https://chengxiangqiu.github.io/tree/exp/' + getQueryVariable('source_node_id') + '.tsv', function(error, data) {
+
+        if (error) {
+            $('#view_plot').remove();
+        }
 
         var margin = {top: 20, right: 200, bottom: 100, left: 100},
             width = 800 - margin.left - margin.right,
