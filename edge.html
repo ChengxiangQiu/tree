@@ -51,11 +51,11 @@
 <div id="table"></div>
 
 <div id = "view_plot">
-<h2 style="margin-top:50px;">Viewing the expression levels for individual TFs (or cell-type-specific marker genes) of each branchpoint. </h2>
+<h2 style="margin-top:50px;">Viewing the expression levels for key TF candidates (or cell-type-specific marker genes) of each branchpoint. </h2>
 <p style="margin-left: 20px;">Select one TF (gene):</p>
 <div id="my_selection" style="height:600px; width:50px;  margin-left: 20px; float: left;"></div>
-<div id="my_dataviz_1" style="height:600px; width:800px;  margin-left: 40px; float: left;"></div>
-<div id="my_dataviz_2" style="height:600px; width:800px;  margin-left: 10px; float: left;"></div>
+<div id="my_dataviz_1" style="height:500px; width:700px;  margin-left: 40px; float: left;"></div>
+<div id="my_dataviz_2" style="height:500px; width:700px;  margin-left: 10px; float: left;"></div>
 </div>
 </body>
 
@@ -132,8 +132,8 @@
         }
 
         var margin = {top: 20, right: 200, bottom: 100, left: 100},
-            width = 800 - margin.left - margin.right,
-            height = 600 - margin.top - margin.bottom;
+            width = 700 - margin.left - margin.right,
+            height = 500 - margin.top - margin.bottom;
 
         // setup x 
         var xValue = function(d) { return d.UMAP_1;}, // data -> value
