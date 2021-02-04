@@ -164,6 +164,7 @@
             $('#view_plot').remove();
         } else {
             var to_keep = to_keep_str[0]['best_path'].split(",");
+            var gene_list = to_keep_str[0]['gene_use'].split(",");
 
             d3.tsv('exp_state.tsv', function(error, org_data) {
 
@@ -176,11 +177,11 @@
                 width = 800 - margin.left - margin.right,
                 height = 400 - margin.top - margin.bottom;
 
-            var gene_list = d3.keys(data[0]);
-                gene_list.shift();
-                gene_list.shift();
-                gene_list.shift();
-                gene_list.shift();
+//            var gene_list = d3.keys(data[0]);
+//                gene_list.shift();
+//                gene_list.shift();
+//                gene_list.shift();
+//                gene_list.shift();
 
             var select = d3.select("#my_selection")
                 .append('select')
